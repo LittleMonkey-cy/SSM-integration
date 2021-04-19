@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruanyuan.dao.EmployeeDao">
+	<resultMap type="com.ruanyuan.pojo.Employee"
+		id="WithDeptResultMap">
+		<id column="empno" property="empno" />
+		<result column="ename" property="ename" />
+		<result column="job" property="job" />
+		<result column="hiredate" property="hiredate" />
+		<result column="sal" property="sal" />
+		<result column="comm" property="comm" />
+		<!-- 指定联合查询出的部门字段的封装 -->
+		<association property="department"
+			javaType="com.ruanyuan.pojo.Department">
+			<id column="deptno" property="deptno" />
+			<result column="dname" property="dname" />
+		</association>
+	</resultMap>
+	<sql id="WithDept_Colum_list">
+		e.empno,e.ename,e.job,e.hiredate,e.sal,e.comm,e.deptno,d.deptno,d.dname
+	</sql>
+	<sql id="emp_sql">
+		empno,ename,job,hiredate,sal,comm,deptno
+	</sql>
+	<select id="listEmployees" resultMap="WithDeptResultMap">
+		select
+		<include refid="WithDept_Colum_list"></include>
+		from employee e left join department d on e.deptno=d.deptno order by
+		empno ASC
+	</select>
+	<select id="getEmpById" resultType="employee">
+		select
+		<include refid="emp_sql"></include>
+		from employee where empno = #{empno}
+	</select>
+	<select id="countEname" resultType="Integer">
+
+		select count(*) from employee
+		where ename = #{ename}
+	</select>
+	<!--添加数据 -->
+	<!-- 添加数据 -->
+	<insert id="insertEmployee">
+		insert into employee
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="empno!=null">
+				empno,
+			</if>
+			<if test="ename!=null">
+				ename,
+			</if>
+			<if test="job!=null">
+				job,
+			</if>
+			<if test="hiredate!=null">
+				hiredate,
+			</if>
+			<if test="sal!=null">
+				sal,
+			</if>
+			<if test="comm!=null">
+				comm,
+			</if>
+			<if test="department!=null">
+				deptno
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="empno!=null">
+				#{empno},
+			</if>
+			<if test="ename!=null">
+				#{ename},
+			</if>
+			<if test="job!=null">
+				#{job},
+			</if>
+			<if test="hiredate!=null">
+				#{hiredate},
+			</if>
+			<if test="sal!=null">
+				#{sal},
+			</if>
+			<if test="comm!=null">
+				#{comm},
+			</if>
+			<if test="department!=null">
+				#{department.deptno}
+			</if>
+		</trim>
+	</insert>
+	<update id="updateEmployeeById">
+		update employee
+		<set>
+			<if test="ename!=null and ename!=''">
+				ename = #{ename},
+			</if>
+			<if test="job!=null and job!=''">
+				job = #{job},
+			</if>
+			<if test="hiredate!=null and hiredate!=''">
+				hiredate = #{hiredate},
+			</if>
+			<if test="sal!=null and sal!=''">
+				sal = #{sal},
+			</if>
+			<if test="comm!=null and comm!=''">
+				comm = #{comm},
+			</if>
+			<if test="department!=null and department!=''">
+				deptno = #{department.deptno}
+			</if>
+		</set>
+		where empno = #{empno}
+	</update>
+	<!-- 根据单个员工id删除 -->
+	<delete id="deleteEmpById">
+		delete from employee where empno = #{empno}
+	</delete>
+	<!-- 批量删除员工信息 -->
+	<delete id="deleteBatch">
+		delete from employee where empno in
+		<foreach collection="list" item="ids" open="(" separator=","
+			close=")">
+			#{ids}
+		</foreach>
+	</delete>
+	<!-- 多条件查询 -->
+	<!-- <select id="employeeAll" resultMap="BaseResult"> -->
+	<select id="employeeAll" resultMap="BaseResult">
+		select <include refid="WithDept_Colum_list"/> 
+		from employee e inner join department d on e.deptno =
+		d.deptno
+		<where>
+			<if test="ename !='' and ename != null">
+				and ename like concat('%',#{ename},'%')
+			</if>
+			<if test="job != '' and job != null">
+				and job = #{job}
+			</if>
+			<if test="department.deptno!='' and department.deptno!= null">
+				and e.deptno = #{department.deptno}
+			</if>
+			<if
+				test="startTime !='' and startTime != null and endTime != null and endTime != ''">
+				<!-- and hiredate &gt; #{startTime} -->
+				and DATE_FORMAT(hiredate,'%Y%m') BETWEEN #{startTime} and #{endTime}
+			</if>
+			<!-- <if test="endTime!='' and endTime != null"> and hiredate &lt; #{endTime} 
+				</if> -->
+		</where>
+
+	</select>
+	<resultMap type="com.ruanyuan.pojo.Employee" id="BaseResult">
+		<id column="empno" property="empno" />
+		<result column="ename" property="ename" />
+		<result column="job" property="job" />
+		<result column="hiredate" property="hiredate" />
+		<!-- 指定联合查询出的部门字段的封装 -->
+		<association property="department"
+			javaType="com.ruanyuan.pojo.Department">
+			<id column="deptno" property="deptno" />
+			<result column="dname" property="dname" />
+		</association>
+	</resultMap>
+</mapper>

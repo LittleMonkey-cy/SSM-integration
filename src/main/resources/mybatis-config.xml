@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--   settings: 控制mybatis的全局行为-->
+    <settings>
+        <!--        设置mybatis的输出日志，可以为STDOUT_LOGGING或log4j-->
+        <setting name="logImpl" value="LOG4J"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    <!--    设置别名-->
+    <typeAliases>
+        <package name="com.ruanyuan.pojo"/>
+    </typeAliases>
+    <!-- 开启分页插件 -->
+    <plugins>
+    	<plugin interceptor="com.github.pagehelper.PageInterceptor">
+    		<!-- 进行页数拦截，-1时跳转到首页，大于末页时跳转到末页 -->
+    		<property name="reasonable" value="true"/>
+    	</plugin>
+    </plugins>
+    <!--    sql mapper(sql映射文件)的位置-->
+<!--    <mappers>-->
+        <!--        <package name="com.ruanyuan.dao"/>-->
+<!--    </mappers>-->
+</configuration>
